@@ -3,3 +3,11 @@ __pycache__/
 *.pyo
 .idea/
 venv/
+*.aux
+*.log
+*.out
+*.toc
+*.dvi
+*.fdb_latexmk
+*.fls
+*.synctex.gz

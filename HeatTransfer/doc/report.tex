@@ -1,0 +1,59 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\title{Równanie transportu ciepła}
+\author{Jakub Zając}
+\date{Styczeń 2025}
+
+\begin{document}
+
+\maketitle
+
+\section{Problem}
+\textbf{Równanie transportu ciepła: }
+\[-\frac{d}{dx}k(x)\frac{du(x)}{dx}=100x^2\]
+
+\[u(2) = -20\]
+
+\[\frac{du(0)}{dx} + u(0) = 20\]
+
+\[k(x) =\begin{cases}1 & \text{dla } x \in [0, 1] \\
+2x & \text{dla } x \in (1, 2]
+\end{cases}\]
+
+Gdzie \( u \) to poszukiwana funkcja:
+
+\[[0, 2] \ni x \mapsto u(x) \in \mathbb{R}.\]
+
+\section{Rozwiązanie}
+\[-\frac{d}{dx}(k(x)\frac{du(x)}{dx})=100x^2\]
+\[-\frac{d}{dx}(k(x)u'(x))v(x)=100x^2v(x)\]
+\[u \in \mathbb{R}, \forall v \in V, V=\{f \in H^1, f(2)=0\}\]
+\[-\int_0^2(-\frac{d}{dx}(k(x)u'(x))v(x))dx=\int_0^2(100x^2v(x))dx\]
+\\
+Całkuję przez części lewą stronę równania:
+
+    \[-\int_0^2 \left( \frac{d}{dx}(k(x)u'(x))v(x) \right)dx = 
+    -(v(x)k(x)u'(x))|_0^2 + \int_0^2(k(x)u'(x)v'(x))dx = \]
+    \[=-v(2)k(2)u'(2) + v(0)k(0)u'(0) + \int_0^2(k(x)u'(x)v'(x))dx = (*)\]
+
+    \[u, v \in V \land u(2)=-20, v(2)=0\]
+    \[u'(0)+u(0)=20\]
+    \[k(0)=1\]
+
+    \[(*)=v(0)(20-u(0))+\int_0^2(k(x)u'(x)v'(x))dx\]
+\\
+Wracając do głównego równania:
+
+\[20v(0)-v(0)u(0)+\int_0^2(k(x)u'(x)v'(x))dx=\int_0^2(100x^2v(x))dx\]
+\[\int_0^2(k(x)u'(x)v'(x))dx-u(0)v(0)=\int_0^2(100x^2v(x))dx-20v(0)\]
+\[B(u,v)=\int_0^2(k(x)u'(x)v'(x))dx-u(0)v(0)\]
+\[L(v)=\int_0^2(100x^2v(x))dx-20v(0)\]
+\[B(u,v)=L(v)\]
+
+\end{document}
