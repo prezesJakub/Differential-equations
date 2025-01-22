@@ -1,68 +1,72 @@
 import numpy
 from scipy import integrate
 
-def e(i, x, h):
-    if x<(i-1)*h or x>(i+1)*h:
-        return 0
-    elif x<i*h:
-        return x/h - i + 1
-    else:
-        return -x/h + i - 1
-
-def e_prim(i, x, h):
-    if x<(i-1)*h or x>(i+1)*h:
-        return 0
-    elif x<i*h:
-        return 1/h
-    else:
-        return -1/h
 
 def k(x):
-    if 0<=x<=1:
+    if 0 <= x <= 1:
         return 1
-    elif 1<x<=2:
-        return 2*x
+    elif 1 < x <= 2:
+        return 2 * x
     else:
         return 0
 
-def B(i, j, l, r, h):
-    return integrate.quad(lambda x: e_prim(i, x, h) * e_prim(j, x, h) * k(x), l, r)[0]
 
-def L(i, l, r, h):
-    return integrate.quad(lambda x: 100 * x**2 * e(i, x, h), l, r)[0] - e(i, 0, h) * 20
+def element_integrals(l, r, h):
+    B = numpy.zeros((2, 2))
+    L = numpy.zeros(2)
 
-def matrixA(n, h):
-    matrix = []
-    for i in range(n):
-        row = []
-        for j in range(n):
-            if abs(i-j) > 1:
-                row.append(0)
-                continue
-            if abs(i-j) == 1:
-                l = max(0, min(i,j)*h)
-                r = min(2, max(i,j)*h)
-            else:
-                l = max(0, (i-1) * h)
-                r = min(2, (i+1) * h)
-            row.append(B(j, i, l, r, h))
-        matrix.append(row)
-    return matrix
+    quadrature_points = numpy.array([-1, 1]) / numpy.sqrt(3)
 
-def matrixB(n, h):
-    matrix = []
-    for i in range(n):
-        l = max(0, (i-1) * h)
-        r = min(2, (i+1) * h)
-        matrix.append(L(i, l, r, h))
-    return matrix
+    midpoint = (l + r) / 2
+
+    e_prim = numpy.array([-1, 1]) / h
+
+    for xi in quadrature_points:
+        x = midpoint + h * xi / 2
+        e = numpy.array([1 - xi, 1 + xi]) / 2
+
+        for i in range(2):
+            L[i] += 100 * x ** 2 * e[i] * h / 2
+            for j in range(2):
+                B[i, j] += k(x) * e_prim[i] * e_prim[j] * h / 2
+    return B, L
+
+
+def assemble_global_matrices(N):
+    nodes = numpy.linspace(0, 2, N + 1)
+
+    B_global = numpy.zeros((N + 1, N + 1))
+    L_global = numpy.zeros(N + 1)
+
+    for element in range(N):
+        l, r = nodes[element], nodes[element + 1]
+        h = r - l
+
+        B, L = element_integrals(l, r, h)
+
+        for i in range(2):
+            L_global[element + i] += L[i]
+            for j in range(2):
+                B_global[element + i, element + j] += B[i, j]
+    return B_global, L_global, nodes
+
+
+def apply_boundary_conditions(B, L):
+    B[-1, :] = 0
+    B[-1, -1] = 1
+    L[-1] = -20
+
+    B[0, 0] += 1
+    L[0] += -20
+
+    return B, L
+
 
 def solve(n):
-    h = 2/n
-    a = numpy.array(matrixA(n, h))
-    b = numpy.array(matrixB(n, h))
-    u = numpy.linalg.solve(a, b)
-    x = [h*i for i in range(n+1)]
-    y = numpy.append(u, -20)
-    return x, y
+    B, L, nodes = assemble_global_matrices(n)
 
+    B, L = apply_boundary_conditions(B, L)
+
+    u = numpy.linalg.solve(B, L)
+
+    return nodes, u
