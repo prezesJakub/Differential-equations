@@ -1,6 +1,7 @@
 import seaborn
 import matplotlib.pyplot as plt
 
+
 def show(x, y, n):
     seaborn.set(style='darkgrid')
     plt.figure()
